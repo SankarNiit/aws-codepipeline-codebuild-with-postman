@@ -34,9 +34,5 @@ reports:
       - '**/*'
     base-directory: '02postman/newman' # Location of the reports
 artifacts:
-  commands:
-      - ls
-      - pwd
   files:
-  - newman_output.json
-  - update-postman-env-file.sh
+    - 02postman/newman_output.json
