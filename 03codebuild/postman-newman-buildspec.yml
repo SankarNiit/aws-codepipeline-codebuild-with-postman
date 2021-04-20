@@ -32,3 +32,7 @@ reports:
     files: #Store all of the files
       - '**/*'
     base-directory: '02postman/newman' # Location of the reports
+artifacts:
+  files:
+  - newman_output.json
+  - update-postman-env-file.sh
