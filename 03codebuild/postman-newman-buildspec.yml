@@ -26,7 +26,9 @@ phases:
       - echo Build started on `date` from dir `pwd`
       - ls
       - cat PetStoreAPIEnvironment.postman_environment.json
-      - newman run PetStoreAPI.postman_collection.json --environment PetStoreAPIEnvironment.postman_environment.json -r junit
+      - newman -h
+      - newman -v
+      - sudo newman run --verbose PetStoreAPI.postman_collection.json --environment PetStoreAPIEnvironment.postman_environment.json -r cli,json,junit
 
 reports:
   JUnitReports: # CodeBuild will create a report group called "SurefireReports".
