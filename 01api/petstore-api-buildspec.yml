@@ -1,13 +1,51 @@
 version: 0.2
+env:
+  secrets-manager:
+    LOGIN: "SONAR_NODE_CLOUD:SONAR_TOKEN"
+    HOST: "SONAR_NODE_CLOUD:SONAR_HOST"
+    Organization: "SONAR_NODE_CLOUD:SONAR_ORG"
+    Project: "SONAR_NODE_CLOUD:SONAR_POSTMAN_PROJ"
+    ARTIFACTORY_USER: "ARTIFACTORY_CLOUD:JFROG_ART_USER"
+    ARTIFACTORY_URL: "ARTIFACTORY_CLOUD:JFROG_NODE_URL"
+    ARTIFACTORY_API_KEY: "ARTIFACTORY_CLOUD:JFROG_API_KEY"
+    ARTIFACTORY_PASSWORD: "ARTIFACTORY_CLOUD:JFROG_ART_PASS"
 phases:
   install:
+    runtime-versions:
+      nodejs: latest
     commands:
+      - wget https://dl.bintray.com/jfrog/jfrog-cli-go/1.12.1/jfrog-cli-linux-amd64/jfrog
+      - chmod +x jfrog
       - cd 01api
       - aws cloudformation package --template-file petstore-api.yaml
                                    --s3-bucket aws-poc-test-soapui
                                    --s3-prefix api-code
                                    --output-template-file petstore-api-output.yaml
+                                   
+  pre_build:
+    commands:
+      - apt-get update
+      - apt-get install -y jq
+      - npm install -g sonarqube-scanner
+      - ./jfrog rt config --url $ARTIFACTORY_URL --user $ARTIFACTORY_USER --apikey $ARTIFACTORY_API_KEY
+      
+  build:
+    commands:
+      - echo Build started on `date`
+      - cd $CODEBUILD_SRC_DIR
+      - sonar-scanner -Dsonar.login=$LOGIN -Dsonar.host.url=$HOST -Dsonar.projectKey=$Project -Dsonar.organization=$Organization
+      - sleep 5
+      - curl https://sonarcloud.io/api/qualitygates/project_status?projectKey=$Project > result.json
+      - cat result.json
+      - if [ $(jq -r '.projectStatus.status' result.json) = OK ] ; then $CODEBUILD_BUILD_SUCCEEDING -eq 0 ;fi
+      
+  post_build:
+    commands:
+      - curl -H "X-JFrog-Art-Api:$ARTIFACTORY_API_KEY" -T *.json "https://awspoc27.jfrog.io/artifactory/example-repo-local/" 
+      - ls
+      - pwd
 artifacts:
   type: zip
   files:
     - 01api/petstore-api-output.yaml
+    - result.json
