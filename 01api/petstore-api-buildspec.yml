@@ -16,6 +16,9 @@ phases:
     commands:
       - wget https://dl.bintray.com/jfrog/jfrog-cli-go/1.12.1/jfrog-cli-linux-amd64/jfrog
       - chmod +x jfrog
+      - ls
+      - pwd
+      - echo $CODEBUILD_SRC_DIR
       - cd 01api
       - aws cloudformation package --template-file petstore-api.yaml
                                    --s3-bucket aws-poc-test-soapui
@@ -27,6 +30,7 @@ phases:
       - apt-get update
       - apt-get install -y jq
       - npm install -g sonarqube-scanner
+      - cd $CODEBUILD_SRC_DIR
       - ./jfrog rt config --url $ARTIFACTORY_URL --user $ARTIFACTORY_USER --apikey $ARTIFACTORY_API_KEY
       
   build:
