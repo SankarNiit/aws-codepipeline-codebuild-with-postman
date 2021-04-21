@@ -1,3 +1,6 @@
+# angular-nodejs-ecs
+Example project for deploying angular nodejs project on Amazon ECS
+
 ## Automating API Testing with AWS Code Pipeline, AWS Code Build, and Postman
 
 This post demonstrates the use of AWS CodeBuild, CodePipeline and Postman to deploy, 
